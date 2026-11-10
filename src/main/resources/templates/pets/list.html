@@ -5,24 +5,58 @@
     <nav th:replace="~{fragments/navigation :: navigation}"></nav>
 
     <main class="page-container">
-        <h1>Catálogo de mascotas</h1>
-        <p class="page-intro">Selecciona una mascota para conocer sus detalles.</p>
+        <header class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h1>Catálogo de mascotas</h1>
+                <p class="page-intro">Consulta y administra las mascotas del catálogo.</p>
+            </div>
+            
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <!-- Formulario de búsqueda por especie -->
+                <form method="get" th:action="@{/pets}" class="search-form" style="display: inline-flex; gap: 6px; align-items: center;">
+                    <input type="text" name="species" placeholder="Buscar por especie..." th:value="${param.species}" style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px;" />
+                    <button type="submit" class="button-link">Buscar</button>
+                    <a th:if="${param.species}" th:href="@{/pets}" class="button-link secondary" style="background-color: #6c757d; color: white; text-decoration: none; padding: 6px 10px; border-radius: 4px; display: inline-flex; align-items: center;">Limpiar</a>
+                </form>
+
+                <a class="button-link" th:href="@{/pets/new}">
+                    Registrar mascota
+                </a>
+            </div>
+        </header>
+
+        <p class="success-message" role="status"
+            th:if="${successMessage}"
+            th:text="${successMessage}"></p>
 
         <section class="content-panel" th:if="${pets.isEmpty()}">
             <h2>El catálogo está vacío</h2>
-            <p>Vuelve cuando haya mascotas para mostrar.</p>
+            <p>Registra una mascota para comenzar.</p>
+            <a class="button-link" th:href="@{/pets/new}">Registrar mascota</a>
         </section>
 
-        <section class="pet-grid"
-                 aria-label="Lista de mascotas"
+        <section class="pet-grid" aria-label="Lista de mascotas"
                  th:unless="${pets.isEmpty()}">
             <article class="pet-card" th:each="pet : ${pets}">
                 <h2 th:text="${pet.name}">Nombre</h2>
                 <p>Especie: <span th:text="${pet.species}">Especie</span></p>
                 <p>Edad: <span th:text="${pet.age}">0</span> años</p>
-                <a class="button-link"
-                   th:href="@{/pets/{id}(id=${pet.id})}"
-                   href="#">Ver detalle</a>
+
+                <div class="form-actions">
+                    <a class="button-link"
+                       th:href="@{/pets/{id}(id=${pet.id})}">Ver detalle</a>
+                    <a class="secondary-link"
+                       th:href="@{/pets/{id}/edit(id=${pet.id})}">Editar</a>
+                </div>
+
+                <form method="post" class="delete-form"
+                      th:action="@{/pets/{id}/delete(id=${pet.id})}">
+                    <button type="submit" class="danger-button">
+                        Eliminar
+                        <span class="visually-hidden"
+                              th:text="' ' + ${pet.name}"></span>
+                    </button>
+                </form>
             </article>
         </section>
     </main>
